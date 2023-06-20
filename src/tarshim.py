@@ -95,6 +95,8 @@ def cell_figure_mapping(fig):
 
 
 def html_from_dataframe(df: pd.DataFrame, figure_columns=None) -> str:
+    if hasattr(df, 'render'):
+        return df.render()
     if figure_columns is None:
         figure_columns = []
     elif figure_columns == 'infer':
@@ -120,8 +122,21 @@ def arrowed_spines(
             transform=ax.transAxes, clip_on=False)
     return ax
 
+def despine(full=False, **kwargs):
+    if full:
+        if 'ax' in kwargs:
+            ax = kwargs['ax']
+        else:
+            ax = plt.gca()
+        ax.set_xticks([])
+        ax.set_yticks([])
+        for w in ['left', 'right', 'top', 'bottom']:
+            kwargs[w] = True
+    ret = sns.despine(**kwargs)
+    return ret
 
-def cleanup(ax=None, despine=True, add_arrows=True, remove_ticks=False):
+
+def cleanup(ax=None, do_despine=True, add_arrows=True, remove_ticks=False):
     if ax is None:
         ax = plt.gca()
     if add_arrows:
@@ -129,6 +144,6 @@ def cleanup(ax=None, despine=True, add_arrows=True, remove_ticks=False):
     if remove_ticks:
         ax.set_yticks([])
         ax.set_xticks([])
-    if despine:
-        sns.despine(ax=ax)
+    if do_despine:
+        despine(ax=ax)
     return ax
